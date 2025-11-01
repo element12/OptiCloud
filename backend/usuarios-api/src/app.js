@@ -25,9 +25,9 @@ app.get("/db/health", async (_req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const { correo, contraseña } = req.body;
+  const { email, password } = req.body;
 
-  if (!correo || !contraseña) {
+  if (!email || !password) {
     return res.status(400).json({ success: false, message: "Faltan datos" });
   }
 
@@ -40,7 +40,7 @@ app.post("/login", (req, res) => {
     WHERE u.correo = ? AND u.contraseña = ?
   `;
 
-  db.query(query, [correo, contraseña], (err, results) => {
+  db.query(query, [email, password], (err, results) => {
     if (err) {
       console.error("Error en la consulta:", err);
       return res.status(500).json({ success: false, message: "Error del servidor" });
