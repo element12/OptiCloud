@@ -43,7 +43,7 @@ app.post("/login", (req, res) => {
   db.query(query, [email, password], (err, results) => {
     if (err) {
       console.error("Error en la consulta:", err);
-      return res.status(500).json({ success: false, message: "Error del servidor" });
+      return res.status(500).json({ success: false, message: "Error del servidor cargando" });
     }
 
     if (results.length === 0) {
