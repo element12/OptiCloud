@@ -14,6 +14,7 @@ app.get("/", (req, res) => {
   res.json({ message: "API funcionando" });
 });
 
+// Health DB
 app.get("/db/health", async (_req, res) => {
   try {
     const r = await pool.query("SELECT 1 AS ok");
