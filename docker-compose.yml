@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  usuarios-api:
+    build: ./backend/usuarios-api
+    environment:
+      - PORT=3001
+      - SERVICE_NAME=usuarios-api
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+
+  # products-api:
+  #   build: ./products-api
+  #   environment:
+  #     - PORT=4002
+  #     - SERVICE_NAME=products-api
+  #     - DATABASE_URL_MONGO=${DATABASE_URL_MONGO}
+  #     - USERS_API_URL=${USERS_API_URL}
+  #   ports:
+  #     - "4002:4002"
+  #   depends_on:
+  #     - users-api
+  #   restart: unless-stopped

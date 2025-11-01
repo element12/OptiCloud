@@ -1,0 +1,28 @@
+{
+  "name": "opticloud",
+  "version": "1.0.0",
+  "description": "Plataforma web cloud que digitaliza la gestión completa de una óptica: Registro de pacientes y prescripciones médicas Control de inventario de productos (monturas, lentes, accesorios) Consulta de historial médico por pacientes",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/element12/OptiCloud.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/element12/OptiCloud/issues"
+  },
+  "homepage": "https://github.com/element12/OptiCloud#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
