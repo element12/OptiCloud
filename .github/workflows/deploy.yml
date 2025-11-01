@@ -18,7 +18,7 @@ jobs:
       matrix:
         include:
           - service: usuarios-api
-            context: usuarios-api
+            context: /backend/usuarios-api
             image: usuarios-api
           - service: frontend
             context: frontend
