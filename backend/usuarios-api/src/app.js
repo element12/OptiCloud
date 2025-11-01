@@ -47,7 +47,7 @@ app.post("/login", (req, res) => {
     }
 
     if (results.length === 0) {
-      return res.status(401).json({ success: false, message: "Credenciales incorrectas" });
+      return res.status(401).json({ success: false, message: "Credenciales incorrectas 2" });
     }
 
     // Agrupar roles (puede tener varios)
