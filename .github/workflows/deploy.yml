@@ -24,7 +24,7 @@ jobs:
             context: ./frontend
             image: frontend
           - service: catalogo-inventario-api
-            context: ./backend/catalogo-inventario-api
+            context: ./backend/catalogoInventario-api
             image: catalogo-inventario-api
     steps:
       - name: 📥 Checkout
