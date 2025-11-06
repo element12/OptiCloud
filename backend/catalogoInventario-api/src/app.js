@@ -1,6 +1,6 @@
 import express from "express";
 import { ObjectId } from "mongodb";
-import { connectDB, stockproductos } from "./config/db.js";
+import { connectDB, products } from "./db.js";
 import "dotenv/config";
 
 const app = express();
@@ -10,7 +10,17 @@ const PORT = process.env.PORT || 3002;
 app.use(express.json());
 
 // Conectar a la base de datos
-await connectDB();
+//await connectDB();
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ No se pudo iniciar el servidor:", err);
+  });
+
 
 // ==========================================
 // FUNCIONES AUXILIARES
@@ -64,7 +74,7 @@ app.post("/api/v1/products", async (req, res) => {
       fechaActualizacion: new Date(),
     };
 
-    const result = await stockproductos.insertOne(nuevoProducto);
+    const result = await products.insertOne(nuevoProducto);
 
     res.status(201).json({
       success: true,
@@ -111,7 +121,7 @@ app.get("/api/v1/products", async (req, res) => {
     }
 
     // Obtener productos
-    const productos = await stockproductos.find(filtro).toArray();
+    const productos = await products.find(filtro).toArray();
 
     res.status(200).json({
       success: true,
@@ -147,7 +157,7 @@ app.put("/api/v1/products/:id", async (req, res) => {
     datosActualizacion.fechaActualizacion = new Date();
 
     // Actualizar producto
-    const result = await stockproductos.findOneAndUpdate(
+    const result = await products.findOneAndUpdate(
       { _id: new ObjectId(id) },
       { $set: datosActualizacion },
       { returnDocument: "after" }

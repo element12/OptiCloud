@@ -1,13 +1,9 @@
 import { MongoClient } from "mongodb";
-import "dotenv/config";
+import dotenv from "dotenv";
 
-const uri = process.env.DATABASE_URL_MONGO; // tu cadena de conexión Cosmos DB Mongo API
+dotenv.config();
 
-const client = new MongoClient(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  ssl: true,
-});
+const uri = process.env.DATABASE_URL_NOSQL;
 
 let db;
 let products;
@@ -15,15 +11,17 @@ let products;
 export async function connectDB() {
   try {
     if (!db) {
+      console.log("🔍 Conectando a MongoDB...");
+      const client = new MongoClient(uri);
       await client.connect();
-      db = client.db("productsdb");
-      products = db.collection("stockproductos");
-      console.log("Conectado a Cosmos DB (Mongo API)");
+      db = client.db("opticloud");
+      products = db.collection("products");
+      console.log("✅ Conectado correctamente a MongoDB");
     }
     return { db, products };
   } catch (err) {
-    console.error("Error conectando a Cosmos DB:", err);
-    process.exit(1);
+    console.error("❌ Error conectando a MongoDB:", err.message);
+    process.exit(1); // evita que app siga si la DB no conecta
   }
 }
 
