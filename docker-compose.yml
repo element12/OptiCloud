@@ -24,7 +24,7 @@ services:
     environment:
       - PORT=3002
       - SERVICE_NAME=catalogoinventario-api
-      - DATABASE_URL=${DATABASE_URL_NOSQL}
+      - DATABASE_URL_NOSQL=${DATABASE_URL_NOSQL}
     ports:
       - "3002:3002"
     restart: unless-stopped
