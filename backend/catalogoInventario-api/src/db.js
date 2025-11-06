@@ -17,7 +17,7 @@ export async function connectDB() {
     if (!db) {
       await client.connect();
       db = client.db("productsdb");
-      products = db.collection("products");
+      products = db.collection("stockproductos");
       console.log("Conectado a Cosmos DB (Mongo API)");
     }
     return { db, products };
