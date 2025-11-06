@@ -34,7 +34,7 @@ services:
     environment:
       - PORT=3003
       - SERVICE_NAME=historial-optometrico-api
-      - postgres=${postgres}
+      - DATABASE_URL=${DATABASE_URL}
     ports:
       - "3003:3003"
     restart: unless-stopped
