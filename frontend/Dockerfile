@@ -1,28 +1,22 @@
-# --- Etapa 1: Build de React ---
+# --- Etapa 1: Build ---
 FROM node:18 AS build
-
 WORKDIR /app
-
-# Copiamos archivos de dependencias primero (mejor cache)
 COPY package*.json ./
-
 RUN npm install
-
-# Copiamos el resto del código
 COPY . .
-
-# Compilamos el proyecto
 RUN npm run build
 
-# --- Etapa 2: Servir con Nginx ---
+# --- Etapa 2: Nginx ---
 FROM nginx:alpine
 
-# Copiamos el build al servidor Nginx
+# Copiamos la compilación
 COPY --from=build /app/dist /usr/share/nginx/html
 
+# Copiamos nuestra configuración personalizada de Nginx
+COPY nginx.conf /etc/nginx/nginx.conf
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
+# Puerto expuesto para Azure
 EXPOSE 80
 
-CMD ["nginx", "-c", "/etc/nginx/conf.d/default.conf", "-g", "daemon off;"]
+# Comando de inicio (obligatorio en Azure)
+CMD ["nginx", "-g", "daemon off;"]
