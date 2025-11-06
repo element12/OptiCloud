@@ -1,14 +1,16 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await fetch("http://localhost:3001/login", {
+    const res = await fetch(`${import.meta.env.VITE_API_USER}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -19,6 +21,8 @@ function Login() {
       setMensaje("✅ Login exitoso");
       localStorage.setItem("token", data.token);
       localStorage.setItem("isLogged", "true");
+
+      navigate("/dashboard", { replace: true });
     } else {
       setMensaje("❌ Credenciales incorrectas");
     }

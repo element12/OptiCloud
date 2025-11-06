@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-
 import { pool } from "./db.js";
+import jwt from "jsonwebtoken";
 
 dotenv.config();
 const app = express();
@@ -34,29 +34,47 @@ app.post("/login", (req, res) => {
   // Consulta usuario con sus roles
   const query = `
     SELECT u.id, u.nombre, u.correo, u.documento, r.nombre AS rol
-    FROM usuarios u
-    LEFT JOIN usuarios_roles ur ON u.id = ur.usuario_id
-    LEFT JOIN rol r ON ur.rol_id = r.id
-    WHERE u.correo = ? AND u.contraseña = ?
+    FROM usuarios AS u
+    LEFT JOIN usuarios_roles AS ur ON u.id = ur.usuario_id
+    LEFT JOIN rol AS r ON ur.rol_id = r.id
+    WHERE u.correo = $1 AND u.contraseña = $2
   `;
 
-  db.query(query, [email, password], (err, results) => {
+  pool.query(query, [email, password], (err, results) => {
     if (err) {
       console.error("Error en la consulta:", err);
-      return res.status(500).json({ success: false, message: "Error del servidor cargando" });
+      return res.status(500).json({ success: false, message: "Error del servidor cargando" + err });
     }
 
-    if (results.length === 0) {
-      return res.status(401).json({ success: false, message: "Credenciales incorrectas 2" });
+    if (results.rowCount === 0) {
+      return res.status(401).json({ success: false, message: "Credenciales incorrectas" });
     }
 
+    //console.log(results.rows[0].id);
+
+    //return res.status(200).json({ success: true, message: "Login exitoso" });
     // Agrupar roles (puede tener varios)
+
+    //🪄 Generar el token JWT
+    const token = jwt.sign(
+      {
+        id: results.rows[0].id,
+        nombre: results.rows[0].nombre,
+        correo: results.rows[0].correo,
+        roles: results.rows.map((r) => r.rol).filter(Boolean),
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || "1h" }
+    );
+
+
     const usuario = {
-      id: results[0].id,
-      nombre: results[0].nombre,
-      correo: results[0].correo,
-      documento: results[0].documento,
-      roles: results.map((r) => r.rol).filter(Boolean),
+      id: results.rows[0].id,
+      nombre: results.rows[0].nombre,
+      correo: results.rows[0].correo,
+      documento: results.rows[0].documento,
+      roles: results.rows.map((r) => r.rol).filter(Boolean),
+      token: token,
     };
 
     res.json({ success: true, usuario });
