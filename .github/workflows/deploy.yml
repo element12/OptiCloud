@@ -4,8 +4,8 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - "/backend/**"
-      - "/frontend/**"
+      - "backend/**"
+      - "frontend/**"
       - ".github/workflows/deploy.yml"
   workflow_dispatch:
 
