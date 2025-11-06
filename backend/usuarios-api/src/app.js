@@ -28,7 +28,7 @@ app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ success: false, message: "Faltan datos" });
+    return res.status(400).json({ success: false, message: "Faltan datos para ingresar" });
   }
 
   // Consulta usuario con sus roles
