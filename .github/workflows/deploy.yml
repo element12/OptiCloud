@@ -26,6 +26,12 @@ jobs:
           - service: catalogo-inventario-api
             context: ./backend/catalogoInventario-api
             image: catalogo-inventario-api
+          - service: historial-optometrico-api
+            context: ./backend/historialOptometrico-api
+            image: historial-optometrico-api
+          - service: gestion-paciente-api
+            context: ./backend/gestionPaciente-api
+            image: gestion-paciente-api
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4

@@ -19,14 +19,34 @@ services:
       - "3000:80"
     restart: unless-stopped
 
-  catalogoinventario-api:
+  catalogo-inventario-api:
     build: ./backend/catalogoInventario-api
     environment:
       - PORT=3002
-      - SERVICE_NAME=catalogoinventario-api
+      - SERVICE_NAME=catalogo-inventario-api
       - DATABASE_URL_NOSQL=${DATABASE_URL_NOSQL}
     ports:
       - "3002:3002"
+    restart: unless-stopped
+
+  historial-optometrico-api:
+    build: ./backend/historialOptometrico-api
+    environment:
+      - PORT=3003
+      - SERVICE_NAME=historial-optometrico-api
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "3003:3003"
+    restart: unless-stopped
+
+  gestion-paciente-api:
+    build: ./backend/gestionPaciente-api
+    environment:
+      - PORT=3004
+      - SERVICE_NAME=gestion-paciente-api
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "3004:3004"
     restart: unless-stopped
 
   # products-api:
