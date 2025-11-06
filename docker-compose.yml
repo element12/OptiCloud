@@ -19,6 +19,16 @@ services:
       - "3000:3000"
     restart: unless-stopped
 
+  catalogo-inventario-api:
+    build: ./backend/catalogo-inventario-api
+    environment:
+      - PORT=3002
+      - SERVICE_NAME=catalogo-inventario-api
+      - DATABASE_URL=${DATABASE_URL_NOSQL}
+    ports:
+      - "3002:3002"
+    restart: unless-stopped
+
   # products-api:
   #   build: ./products-api
   #   environment:

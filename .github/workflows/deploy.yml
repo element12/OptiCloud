@@ -23,7 +23,9 @@ jobs:
           - service: frontend
             context: ./frontend
             image: frontend
-
+          - service: catalogo-inventario-api
+            context: ./backend/catalogo-inventario-api
+            image: catalogo-inventario-api
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
