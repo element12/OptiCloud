@@ -15,6 +15,10 @@
   "author": "",
   "license": "ISC",
   "type": "module",
+  "dotenv": "^16.6.1",
+  "express": "^4.19.2",
+  "mongodb": "^6.20.0",
+  "node-fetch": "^3.3.2",
   "bugs": {
     "url": "https://github.com/element12/OptiCloud/issues"
   },
