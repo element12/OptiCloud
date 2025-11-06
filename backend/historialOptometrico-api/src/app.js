@@ -1,8 +1,17 @@
-import express from "express"; // si usas módulos ES (type: module)
+import express from "express";
+import cors from "cors";
+
+
 const app = express();
+app.use(cors());
+app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Hola desde Node.js!");
+const PORT = process.env.PORT || 3003;
+const SERVICE = process.env.SERVICE_NAME || "historial_optometrico_api";
+
+app.get("/health", (_req, res) => res.json({ status: "ok", service: SERVICE }));
+
+
+app.listen(PORT, () => {
+  console.log(`✅ ${SERVICE} listening on http://localhost:${PORT}`);
 });
-
-app.listen(3000, () => console.log("Servidor escuchando en http://localhost:3000"));
