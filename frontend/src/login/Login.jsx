@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { usuariosApi } from "../api/ApiGlobal";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -10,22 +11,20 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await fetch(`${import.meta.env.VITE_API_USER}/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await usuariosApi.post("/login", { email, password });
+      const data = res.data;
 
-    const data = await res.json();
-    if (res.ok) {
-      setMensaje("✅ Login exitoso");
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("token", data.usuario.token);
       localStorage.setItem("isLogged", "true");
+      setMensaje("✅ Login exitoso");
 
       navigate("/dashboard", { replace: true });
-    } else {
+    } catch (error) {
+      console.error("Error de login:", error);
       setMensaje("❌ Credenciales incorrectas");
     }
+
   };
 
   return (
