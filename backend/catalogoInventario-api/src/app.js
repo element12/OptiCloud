@@ -1,9 +1,13 @@
 import express from "express";
+import cors from "cors";
 import { ObjectId } from "mongodb";
 import { connectDB, products } from "./db.js";
 import "dotenv/config";
+import { verifyToken } from "./middleware/authMiddleware.js";
 
 const app = express();
+
+app.use(cors());
 const PORT = process.env.PORT || 3002;
 
 // Middleware
@@ -188,7 +192,7 @@ app.put("/api/v1/products/:id", async (req, res) => {
 // ==========================================
 // ENDPOINT DE SALUD (Health Check)
 // ==========================================
-app.get("/health", (req, res) => {
+app.get("/health", verifyToken, (req, res) => {
   res.status(200).json({
     success: true,
     message: "API de Catálogo e Inventario funcionando correctamente",

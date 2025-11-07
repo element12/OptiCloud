@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { pool } from "./db.js";
 import jwt from "jsonwebtoken";
+import { verifyToken } from "./middleware/authMiddleware.js";
 
 dotenv.config();
 const app = express();
@@ -10,9 +11,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.json({ message: "API funcionando" });
+app.get("/health", verifyToken, (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "API de Usuarios funcionando correctamente",
+    service: process.env.SERVICE_NAME || "usuarios_api",
+    timestamp: new Date().toISOString(),
+  });
 });
+
 
 // Health DB
 app.get("/db/health", async (_req, res) => {

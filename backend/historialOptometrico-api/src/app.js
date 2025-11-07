@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { pool } from "./db.js";
+import { verifyToken } from "./middleware/authMiddleware.js";
 
 
 const app = express();
@@ -12,7 +13,14 @@ const SERVICE = process.env.SERVICE_NAME || "historial_optometrico_api";
 
 // pendiente: realizar llamado de usuario para poner optometrista
 
-app.get("/health", (_req, res) => res.json({ status: "ok", service: SERVICE }));
+app.get("/health", verifyToken, (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "API de historial optométrico funcionando correctamente",
+    service: process.env.SERVICE_NAME || "historial_optometrico_api",
+    timestamp: new Date().toISOString(),
+  });
+});
 
 
 app.get("/optometrico/v1/exams", async (req, res) => {
