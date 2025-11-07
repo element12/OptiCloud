@@ -100,6 +100,8 @@ app.post("/users/register", async (req, res) => {
     const result = await client.query(insertUserQuery, values);
     const nuevoUsuario = result.rows[0];
 
+    console.log("Usuario registrado:", nuevoUsuario);
+
     // 2️⃣ Insertar rol por defecto (codigo 1) en user_roles
     const insertRoleQuery = `
       INSERT INTO user_roles (user_id, rol_id)
