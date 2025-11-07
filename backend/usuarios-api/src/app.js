@@ -84,21 +84,38 @@ app.post("/users/register", async (req, res) => {
   if (!name || !email || !document || !password) {
     return res.status(400).json({ success: false, message: "Faltan datos para registrar" });
   }
+
+  const client = await pool.connect();
+
   try {
-    const insertQuery = `
+    await client.query("BEGIN");
+
+    // 1️⃣ Insertar usuario
+    const insertUserQuery = `
       INSERT INTO users (name, email, document, password)
       VALUES ($1, $2, $3, $4)
-      RETURNING id, name, email, document 
+      RETURNING id, name, email, document
     `;
-
     const values = [name, email, document, password];
-    const result = await pool.query(insertQuery, values);
+    const result = await client.query(insertUserQuery, values);
     const nuevoUsuario = result.rows[0];
+
+    // 2️⃣ Insertar rol por defecto (codigo 1) en user_roles
+    const insertRoleQuery = `
+      INSERT INTO user_roles (user_id, rol_id)
+      VALUES ($1, $2)
+    `;
+    await client.query(insertRoleQuery, [nuevoUsuario.id, 2]);
+
+    await client.query("COMMIT");
 
     res.status(201).json({ success: true, usuario: nuevoUsuario });
   } catch (error) {
+    await client.query("ROLLBACK");
     console.error("Error al registrar usuario:", error);
     res.status(500).json({ success: false, message: "Error del servidor" });
+  } finally {
+    client.release();
   }
 });
 

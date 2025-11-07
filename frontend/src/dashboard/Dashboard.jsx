@@ -80,6 +80,7 @@ function Dashboard() {
 
 
   return (
+    
     <div className="container py-5">
       <h2>Bienvenido al Dashboard</h2>
       <h4 className="mt-4">Datos de usuario: </h4>
