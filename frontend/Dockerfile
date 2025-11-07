@@ -15,8 +15,12 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Copiamos nuestra configuración personalizada de Nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Puerto expuesto para Azure
+# Copiamos el script de arranque
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Puerto para Azure
 EXPOSE 80
 
-# Comando de inicio (obligatorio en Azure)
-CMD ["nginx", "-g", "daemon off;"]
+# Usamos nuestro script como punto de entrada
+ENTRYPOINT ["/entrypoint.sh"]
