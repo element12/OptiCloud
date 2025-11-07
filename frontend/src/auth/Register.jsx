@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import './Login.css';
 import { usuariosApi } from "../api/ApiGlobal";
 
 function Register() {
