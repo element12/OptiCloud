@@ -85,11 +85,7 @@ app.post("/users/register", async (req, res) => {
     return res.status(400).json({ success: false, message: "Faltan datos para registrar" });
   }
 
-  const client = await pool.connect();
-
   try {
-    await client.query("BEGIN");
-
     // 1️⃣ Insertar usuario
     const insertUserQuery = `
       INSERT INTO users (name, email, document, password)
@@ -97,7 +93,7 @@ app.post("/users/register", async (req, res) => {
       RETURNING id, name, email, document
     `;
     const values = [name, email, document, password];
-    const result = await client.query(insertUserQuery, values);
+    const result = await pool.query(insertUserQuery, values);
     const nuevoUsuario = result.rows[0];
 
     console.log("Usuario registrado:", nuevoUsuario);
@@ -107,17 +103,12 @@ app.post("/users/register", async (req, res) => {
       INSERT INTO user_roles (user_id, rol_id)
       VALUES ($1, $2)
     `;
-    await client.query(insertRoleQuery, [nuevoUsuario.id, 2]);
-
-    await client.query("COMMIT");
+    await pool.query(insertRoleQuery, [nuevoUsuario.id, 2]);
 
     res.status(201).json({ success: true, usuario: nuevoUsuario });
   } catch (error) {
-    await client.query("ROLLBACK");
     console.error("Error al registrar usuario:", error);
     res.status(500).json({ success: false, message: "Error del servidor" });
-  } finally {
-    client.release();
   }
 });
 
