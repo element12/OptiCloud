@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useEffect } from "react";
-import { usuariosApi, catalogoInventarioApi, historialOptometricoApi, gestionPacienteApi } from "@/api/apiGlobal";
+import { usuariosApi, catalogoInventarioApi, historialOptometricoApi, gestionPacienteApi } from "../api/ApiGlobal";
 import { jwtDecode } from "jwt-decode";
 
 function Dashboard() {
