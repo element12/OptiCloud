@@ -92,18 +92,19 @@ app.post("/users/register", async (req, res) => {
       VALUES ($1, $2, $3, $4)
       RETURNING id, name, email, document
     `;
+
     const values = [name, email, document, password];
     const result = await pool.query(insertUserQuery, values);
     const nuevoUsuario = result.rows[0];
 
-    console.log("Usuario registrado:", nuevoUsuario);
+    console.error("Usuario registrado:", nuevoUsuario);
 
     // 2️⃣ Insertar rol por defecto (codigo 1) en user_roles
     const insertRoleQuery = `
       INSERT INTO user_roles (user_id, rol_id)
       VALUES ($1, $2)
     `;
-    await pool.query(insertRoleQuery, [nuevoUsuario.id, 2]);
+    const resultUsuarioRol = await pool.query(insertRoleQuery, [nuevoUsuario.id, 2]);
 
     res.status(201).json({ success: true, usuario: nuevoUsuario });
   } catch (error) {
