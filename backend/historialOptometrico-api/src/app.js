@@ -42,6 +42,27 @@ app.get("/optometrico/v1/exams", async (req, res) => {
   }
 });
 
+
+app.get("/optometrico/v1/patients", async (req, res) => {
+  try {
+    const r = await pool.query(`
+      SELECT 
+        id,
+        name,
+        document
+      FROM patients
+      ORDER BY name ASC
+    `);
+
+    res.json(r.rows);
+  } catch (e) {
+    console.error("❌ ERROR GET PATIENTS:", e);
+    res.status(500).json({ error: "fetch failed", detail: e.detail || e.message });
+  }
+});
+
+
+
 app.get("/optometrico/v1/exams/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -100,13 +121,16 @@ app.post("/optometrico/v1/exams", async (req, res) => {
 });
 
 // ✅ PUT - Actualizar un examen por ID
+// ✅ PUT - Actualizar un examen por ID (incluye mensaje de modificación)
 app.put("/optometrico/v1/exams/:id", async (req, res) => {
   const { id } = req.params;
+
   const {
     patient_id,
     od_sphere, od_cylinder, od_axis,
     oi_sphere, oi_cylinder, oi_axis,
-    observations
+    observations,
+    modification    
   } = req.body ?? {};
 
   try {
@@ -119,15 +143,17 @@ app.put("/optometrico/v1/exams/:id", async (req, res) => {
         oi_sphere = COALESCE($5, oi_sphere),
         oi_cylinder = COALESCE($6, oi_cylinder),
         oi_axis = COALESCE($7, oi_axis),
-        observations = COALESCE($8, observations)
-      WHERE id = $9
+        observations = COALESCE($8, observations),
+        modification = COALESCE($9, modification)   
+      WHERE id = $10
       RETURNING *`,
       [
         patient_id,
         od_sphere, od_cylinder, od_axis,
         oi_sphere, oi_cylinder, oi_axis,
         observations,
-        id
+        modification,   // 👈 noveno parámetro
+        id              // 👈 décimo parámetro
       ]
     );
 
@@ -140,6 +166,7 @@ app.put("/optometrico/v1/exams/:id", async (req, res) => {
     res.status(500).json({ error: "update failed", detail: e.detail || e.message });
   }
 });
+
 
 app.listen(PORT, () => {
   console.log(`✅ ${SERVICE} listening on http://localhost:${PORT}`);
