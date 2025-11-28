@@ -180,10 +180,12 @@ app.get("/api/v1/products/:id", async (req, res) => {
 });
 
 // PUT - Actualizar producto/inventario
+// PUT - Actualizar producto/inventario
 app.put("/api/v1/products/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const datos = req.body;
+
 
     // Validar ID
     if (!ObjectId.isValid(id)) {
@@ -197,6 +199,7 @@ app.put("/api/v1/products/:id", async (req, res) => {
     const datosActualizacion = { ...datos };
     datosActualizacion.fechaActualizacion = new Date();
 
+
     // Actualizar producto
     const result = await products.findOneAndUpdate(
       { _id: new ObjectId(id) },
@@ -204,7 +207,8 @@ app.put("/api/v1/products/:id", async (req, res) => {
       { returnDocument: "after" }
     );
 
-    if (!result.value) {
+
+    if (!result) {
       return res.status(404).json({
         success: false,
         message: "Producto no encontrado",
@@ -214,13 +218,50 @@ app.put("/api/v1/products/:id", async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Producto actualizado exitosamente",
-      data: result.value,
+      data: result,
     });
   } catch (error) {
     console.error("Error al actualizar producto:", error);
     res.status(500).json({
       success: false,
       message: "Error al actualizar producto",
+      error: error.message,
+    });
+  }
+});
+
+// DELETE - Eliminar producto
+app.delete("/api/v1/products/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validar ID
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "ID de producto inválido",
+      });
+    }
+
+    // Eliminar producto
+    const result = await products.deleteOne({ _id: new ObjectId(id) });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Producto no encontrado",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Producto eliminado exitosamente",
+    });
+  } catch (error) {
+    console.error("Error al eliminar producto:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al eliminar producto",
       error: error.message,
     });
   }
