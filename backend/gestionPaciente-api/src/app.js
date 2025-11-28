@@ -36,14 +36,43 @@ app.get("/api/v1/patients", async (req, res) => {
 app.get("/api/v1/patients/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await pool.query("SELECT * FROM data_patients INNER JOIN patients ON data_patients.patient_id = patients.id WHERE patient_id = $1", [id]);
-    if (result.rows.length === 0) return res.status(404).json({ error: "Patient not found" });
-    res.json(result.rows[0]);
+
+    // 1. Obtener datos del paciente
+    const patientQuery = `
+      SELECT *
+      FROM data_patients
+      INNER JOIN patients ON data_patients.patient_id = patients.id
+      WHERE patient_id = $1
+    `;
+    const patientResult = await pool.query(patientQuery, [id]);
+
+    if (patientResult.rows.length === 0) {
+      return res.status(404).json({ error: "Patient not found" });
+    }
+
+    // 2. Consultar exámenes del paciente
+    const examsQuery = `
+      SELECT *
+      FROM exams
+      WHERE patient_id = $1
+      ORDER BY date DESC
+    `;
+    const examsResult = await pool.query(examsQuery, [id]);
+
+    // 3. Construir respuesta final
+    const response = {
+      patient: patientResult.rows[0],
+      exams: examsResult.rows.length > 0 ? examsResult.rows : "No se encuentran registros de exámenes"
+    };
+
+    res.json(response);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Database error" });
   }
 });
+
 
 // POST /api/v1/patients - crear nuevo
 app.post("/api/v1/patients", async (req, res) => {
