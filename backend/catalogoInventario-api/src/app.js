@@ -142,6 +142,43 @@ app.get("/api/v1/products", async (req, res) => {
   }
 });
 
+app.get("/api/v1/products/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validar ID
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "ID de producto inválido",
+      });
+    }
+
+    // Buscar producto
+    const producto = await products.findOne({ _id: new ObjectId(id) });
+
+    if (!producto) {
+      return res.status(404).json({
+        success: false,
+        message: "Producto no encontrado",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Producto encontrado",
+      data: producto,
+    });
+  } catch (error) {
+    console.error("Error al obtener producto:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener producto",
+      error: error.message,
+    });
+  }
+});
+
 // PUT - Actualizar producto/inventario
 app.put("/api/v1/products/:id", async (req, res) => {
   try {
