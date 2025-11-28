@@ -23,7 +23,7 @@ app.get("/health", verifyToken, (req, res) => {
 });
 
 
-app.get("/optometrico/v1/exams", async (req, res) => {
+app.get("/optometrico/v1/exams", verifyToken, async (req, res) => {
   try {
     const r = await pool.query(`
       SELECT 
@@ -43,7 +43,7 @@ app.get("/optometrico/v1/exams", async (req, res) => {
 });
 
 
-app.get("/optometrico/v1/patients", async (req, res) => {
+app.get("/optometrico/v1/patients", verifyToken, async (req, res) => {
   try {
     const r = await pool.query(`
       SELECT 
@@ -63,7 +63,7 @@ app.get("/optometrico/v1/patients", async (req, res) => {
 
 
 
-app.get("/optometrico/v1/exams/:id", async (req, res) => {
+app.get("/optometrico/v1/exams/:id", verifyToken,async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -87,7 +87,7 @@ app.get("/optometrico/v1/exams/:id", async (req, res) => {
   }
 });
 
-app.post("/optometrico/v1/exams", async (req, res) => {
+app.post("/optometrico/v1/exams",verifyToken,async (req, res) => {
   const {
     patient_id,
     od_sphere, od_cylinder, od_axis,
@@ -122,7 +122,7 @@ app.post("/optometrico/v1/exams", async (req, res) => {
 
 // ✅ PUT - Actualizar un examen por ID
 // ✅ PUT - Actualizar un examen por ID (incluye mensaje de modificación)
-app.put("/optometrico/v1/exams/:id", async (req, res) => {
+app.put("/optometrico/v1/exams/:id",verifyToken, async (req, res) => {
   const { id } = req.params;
 
   const {

@@ -22,7 +22,7 @@ app.get("/health", verifyToken, (req, res) => {
   });
 });
 
-app.get("/api/v1/patients", async (req, res) => {
+app.get("/api/v1/patients", verifyToken,async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM data_patients INNER JOIN patients ON data_patients.patient_id = patients.id ORDER BY patient_id ASC");
     res.json(result.rows);
@@ -33,7 +33,7 @@ app.get("/api/v1/patients", async (req, res) => {
 });
 
 // GET /api/v1/patients/:id - obtener uno
-app.get("/api/v1/patients/:id", async (req, res) => {
+app.get("/api/v1/patients/:id",verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -75,7 +75,7 @@ app.get("/api/v1/patients/:id", async (req, res) => {
 
 
 // POST /api/v1/patients - crear nuevo
-app.post("/api/v1/patients", async (req, res) => {
+app.post("/api/v1/patients", verifyToken,async (req, res) => {
   const client = await pool.connect();
   try {
     const { 
@@ -127,7 +127,7 @@ app.post("/api/v1/patients", async (req, res) => {
 });
 
 // PUT /api/v1/patients/:id - actualizar
-app.put("/api/v1/patients/:id", async (req, res) => {
+app.put("/api/v1/patients/:id", verifyToken,async (req, res) => {
   try {
     const { id } = req.params;
     const { age, birth_date, address, city, neighborhood, gender, observations } = req.body;
@@ -149,17 +149,45 @@ app.put("/api/v1/patients/:id", async (req, res) => {
   }
 });
 
-// DELETE /api/v1/patients/:id - eliminar
-app.delete("/api/v1/patients/:id", async (req, res) => {
+app.delete("/api/v1/patients/:id",verifyToken, async (req, res) => {
+  const client = await pool.connect();
+
   try {
     const { id } = req.params;
-    const result = await pool.query("DELETE FROM data_patients WHERE patient_id = $1 RETURNING *", [id]);
-    if (result.rows.length === 0) return res.status(404).json({ error: "Patient not found" });
+
+    // Iniciar transacción
+    await client.query("BEGIN");
+
+    // 1. Eliminar exámenes (tabla data_patients)
+    await client.query(
+      "DELETE FROM data_patients WHERE patient_id = $1",
+      [id]
+    );
+
+    // 2. Eliminar el paciente (tabla patients)
+    const result = await client.query(
+      "DELETE FROM patients WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Patient not found" });
+    }
+
+    // Confirmar cambios
+    await client.query("COMMIT");
+
     res.json({ message: "Patient deleted successfully" });
+
   } catch (err) {
+    await client.query("ROLLBACK");
     console.error(err);
     res.status(500).json({ error: "Database error" });
+  } finally {
+    client.release();
   }
 });
+
 
 app.listen(3004, () => console.log("Servidor escuchando en http://localhost:3004"));
