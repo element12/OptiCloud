@@ -97,6 +97,9 @@ app.post("/users/register", async (req, res) => {
   }
 
   try {
+    // Asegurarse de que password sea string
+    const passwordString = String(password);
+    
     // 1️⃣ Insertar usuario
 
     const saltRounds = 10; // número de rondas de sal (recomendado 10-12)
@@ -113,19 +116,18 @@ app.post("/users/register", async (req, res) => {
     const result = await pool.query(insertUserQuery, values);
     const nuevoUsuario = result.rows[0];
 
-    console.error("Usuario registrado:", nuevoUsuario);
+    console.log("Usuario registrado:", nuevoUsuario);
 
-    // 2️⃣ Insertar rol por defecto (codigo 1) en user_roles
     const insertRoleQuery = `
       INSERT INTO user_roles (user_id, rol_id)
       VALUES ($1, $2)
     `;
-    const resultUsuarioRol = await pool.query(insertRoleQuery, [nuevoUsuario.id, 2]);
+    await pool.query(insertRoleQuery, [nuevoUsuario.id, 2]);
 
     res.status(201).json({ success: true, usuario: nuevoUsuario });
   } catch (error) {
     console.error("Error al registrar usuario:", error);
-    res.status(500).json({ success: false, message: "Error del servidor" });
+    res.status(500).json({ success: false, message: "Error del servidor: " + error.message });
   }
 });
 
