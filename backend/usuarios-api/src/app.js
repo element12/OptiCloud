@@ -149,7 +149,7 @@ app.get("/users", verifyToken, async (req, res) => {
 });
 
 app.get("/users/:id", verifyToken, async (req, res) => {
-  const { id } = req.user;
+  const id = req.params.id;
   try {
     const selectQuery = `
       SELECT id, name, email, document
@@ -170,7 +170,7 @@ app.get("/users/:id", verifyToken, async (req, res) => {
 });
 
 app.put("/users/:id", verifyToken, async (req, res) => {
-  const { id } = req.user;
+  const id = req.params.id;
   const { name, email, document } = req.body;
 
   if (!name || !email || !document) {
@@ -197,7 +197,7 @@ app.put("/users/:id", verifyToken, async (req, res) => {
 });
 
 app.put("/users/password/:id", verifyToken, async (req, res) => {
-  const { id } = req.user;
+  const id = req.params.id;
   const { password } = req.body;
   if (!password) {
     return res.status(400).json({ success: false, message: "Falta la nueva password" });
@@ -225,7 +225,7 @@ app.put("/users/password/:id", verifyToken, async (req, res) => {
 });
 
 app.post("/users/admin/role/:id", verifyToken, async (req, res) => {
-  const { id } = req.user;
+  const id = req.params.id;
   const { rol } = req.body;
 
   console.log("Asignando rol:", rol, "al usuario ID:", id);
@@ -233,7 +233,7 @@ app.post("/users/admin/role/:id", verifyToken, async (req, res) => {
     return res.status(400).json({ success: false, message: "Falta el rol a asignar" });
   } 
   try {
-    const roleQuery = `SELECT id FROM rol WHERE id = $1`;
+    const roleQuery = `SELECT id FROM roles WHERE id = $1`;
     const roleResult = await pool.query(roleQuery, [rol]);
     if (roleResult.rowCount === 0) {
       return res.status(404).json({ success: false, message: "Rol no encontrado" });
@@ -252,7 +252,7 @@ app.post("/users/admin/role/:id", verifyToken, async (req, res) => {
 });
 
 app.delete("/users/admin/role/:id", verifyToken, async (req, res) => {
-  const { id } = req.user;
+  const id = req.params.id;
   const { rol } = req.body;
   if (!rol) {
     return res.status(400).json({ success: false, message: "Falta el rol a remover" });
@@ -269,6 +269,8 @@ app.delete("/users/admin/role/:id", verifyToken, async (req, res) => {
     res.status(500).json({ success: false, message: "Error del servidor" });
   }
 });
+
+
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
