@@ -203,13 +203,17 @@ app.put("/users/password/:id", verifyToken, async (req, res) => {
     return res.status(400).json({ success: false, message: "Falta la nueva password" });
   }
   try {
+
+    const saltRounds = 10; // número de rondas de sal (recomendado 10-12)
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     const updateQuery = `
       UPDATE users
       SET password = $1
       WHERE id = $2
       RETURNING id, name, email, document
     `;
-    const values = [password, id];
+    const values = [hashedPassword, id];
     const result = await pool.query(updateQuery, values);
     const usuarioActualizado = result.rows[0];
 
