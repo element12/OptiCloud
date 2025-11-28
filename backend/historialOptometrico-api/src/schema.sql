@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS patients (
     document VARCHAR(50) UNIQUE NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS exams (
+CREATE TABLE IF NOT EXISTS or MODIFY exams (
+
     id SERIAL PRIMARY KEY,
     patient_id INT NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
     date TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -18,7 +19,16 @@ CREATE TABLE IF NOT EXISTS exams (
     oi_axis INT,
 
     observations TEXT,
+    modification TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
+
 );
+
+ALTER TABLE exams
+    ADD COLUMN modification_date TIMESTAMP NOT NULL DEFAULT NOW()
+
+
+SELECT * FROM exams
+
 
 CREATE INDEX idx_exams_patient_id ON exams(patient_id);
