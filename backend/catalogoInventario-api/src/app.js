@@ -106,7 +106,7 @@ app.get("/api/v1/products", async (req, res) => {
     // Construir filtro dinámico
     const filtro = {};
 
-    if (categoria) {
+    if (categoria && categoria !== "Todos") {
       filtro.categoria = categoria;
     }
 
