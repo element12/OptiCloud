@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { pool } from "./db.js";
 import jwt from "jsonwebtoken";
 import { verifyToken } from "./middleware/authMiddleware.js";
+import bcrypt from "bcrypt";
 
 dotenv.config();
 const app = express();
@@ -29,53 +30,63 @@ app.get("/db/health", async (_req, res) => {
   }
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ success: false, message: "Faltan datos para ingresar" });
   }
 
-  // Consulta usuario con sus roles
-  const query = `
-    SELECT u.id, u.name, u.email, u.document, r.name AS rol
-    FROM users AS u
-    LEFT JOIN user_roles AS ur ON u.id = ur.user_id
-    LEFT JOIN roles AS r ON ur.rol_id = r.id
-    WHERE u.email = $1 AND u.password = $2
-  `;
+  try {
+    // 1️⃣ Obtener usuario y sus roles por email
+    const query = `
+      SELECT u.id, u.name, u.email, u.document, u.password, r.name AS rol
+      FROM users AS u
+      LEFT JOIN user_roles AS ur ON u.id = ur.user_id
+      LEFT JOIN roles AS r ON ur.rol_id = r.id
+      WHERE u.email = $1
+    `;
+    const result = await pool.query(query, [email]);
 
-  pool.query(query, [email, password], (err, results) => {
-    if (err) {
-      console.error("Error en la consulta:", err);
-      return res.status(500).json({ success: false, message: "Error del servidor cargando" + err });
-    }
-
-    if (results.rowCount === 0) {
+    if (result.rowCount === 0) {
       return res.status(401).json({ success: false, message: "Credenciales incorrectas" });
     }
+
+    const user = result.rows[0];
+
+    // 2️⃣ Validar contraseña usando bcrypt
+    const passwordCorrect = await bcrypt.compare(password, user.password);
+    if (!passwordCorrect) {
+      return res.status(401).json({ success: false, message: "Credenciales incorrectas" });
+    }
+
+    // 3️⃣ Generar token JWT
     const token = jwt.sign(
       {
-        id: results.rows[0].id,
-        name: results.rows[0].name,
-        email: results.rows[0].email,
-        roles: results.rows.map((r) => r.rol).filter(Boolean),
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        roles: result.rows.map(r => r.rol).filter(Boolean),
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || "1h" }
     );
 
     const usuario = {
-      id: results.rows[0].id,
-      name: results.rows[0].name,
-      email: results.rows[0].email,
-      document: results.rows[0].document,
-      roles: results.rows.map((r) => r.rol).filter(Boolean),
-      token: token,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      document: user.document,
+      roles: result.rows.map(r => r.rol).filter(Boolean),
+      token,
     };
 
     res.json({ success: true, usuario });
-  });
+
+  } catch (error) {
+    console.error("Error en login:", error);
+    res.status(500).json({ success: false, message: "Error del servidor" });
+  }
 });
 
 
@@ -87,13 +98,18 @@ app.post("/users/register", async (req, res) => {
 
   try {
     // 1️⃣ Insertar usuario
+
+    const saltRounds = 10; // número de rondas de sal (recomendado 10-12)
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+
     const insertUserQuery = `
       INSERT INTO users (name, email, document, password)
       VALUES ($1, $2, $3, $4)
       RETURNING id, name, email, document
     `;
 
-    const values = [name, email, document, password];
+    const values = [name, email, document, hashedPassword];
     const result = await pool.query(insertUserQuery, values);
     const nuevoUsuario = result.rows[0];
 
