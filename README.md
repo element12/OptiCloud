@@ -1,91 +1,126 @@
-**Sistema de Gestión Óptica**
+# Sistema de Gestión Óptica — MVP
 
+## Visión del proyecto
 
-Descripción breve
+Desarrollar una aplicación móvil sencilla y funcional que permita a una óptica gestionar de manera centralizada la información básica de sus pacientes, exámenes optométricos, productos e inventario.
 
-Repositorio que contiene las APIs y arquitectura para un sistema de gestión para una óptica (pacientes, historial optométrico, catálogo e inventario, roles y permisos). La solución está pensada para desplegarse en Microsoft Azure con prácticas de CI/CD usando GitHub Actions y contenedores Docker.
+El proyecto está planteado como un **Producto Mínimo Viable (MVP)**, priorizando la funcionalidad, facilidad de uso y una implementación tecnológica sencilla que permita demostrar el funcionamiento completo de una aplicación móvil con frontend, backend y base de datos.
 
-Stack Tecnológico
+---
 
-Lenguaje: JavaScript (Node.js)
+## Problema a resolver
 
-Framework: Express.js (REST APIs)
+Las ópticas pueden manejar información de pacientes, exámenes y productos de manera manual o mediante diferentes herramientas, lo que puede dificultar el acceso y organización de la información.
 
-Bases de datos:
+El sistema busca solucionar este problema proporcionando una aplicación móvil que permita:
 
-Relacional: Azure SQL Database (Pacientes, Historial Optométrico)
+- Registrar y consultar pacientes.
+- Mantener el historial de exámenes optométricos.
+- Registrar y consultar productos.
+- Controlar el inventario.
+- Identificar productos con bajo stock.
 
-NoRelacional: Azure Cosmos DB — API MongoDB (Catálogo e Inventario)
+De esta manera, se busca centralizar la información principal de la óptica en una aplicación sencilla y fácil de utilizar.
 
-Autenticación / Autorización: JWT + middleware de roles 
+---
 
-Contenedores / Registro: Docker + Azure Container Registry (ACR)
+## Stack tecnológico elegido
 
-Hosting / PaaS: Azure App Service (para APIs) o Azure Kubernetes Service (AKS) si se requiere orquestación.
+### Frontend — Aplicación móvil
 
-Gestión de secretos: Azure Key Vault
+**Flutter + Dart**
 
-CI/CD: GitHub Actions
+Se utilizará Flutter para desarrollar la aplicación móvil y Dart como lenguaje de programación.
 
+Se eligió Flutter porque permite desarrollar una aplicación móvil con una estructura sencilla y facilita la creación de interfaces para Android.
 
-Endpoints (resumen)
-API de Gestión de Pacientes (Azure SQL)
+### Backend
 
-POST /api/v1/patients — Crear nuevo paciente
+**Node.js + Express.js**
 
-GET /api/v1/patients/:id — Consultar paciente por ID
+Se utilizará Node.js junto con Express.js para desarrollar una API REST encargada de procesar las solicitudes realizadas desde la aplicación móvil.
 
-PUT /api/v1/patients/:id — Actualizar datos del paciente
+El backend permitirá realizar las operaciones principales de creación, consulta, actualización y eliminación de información.
 
-API de Historial Optométrico (Azure SQL)
+### Base de datos
 
-POST /api/v1/exams — Registrar nuevo examen o prescripción
+**MongoDB**
 
-GET /api/v1/exams/patient/:patientId — Obtener historial optométrico de un paciente
+MongoDB será utilizada para almacenar la información de:
 
-PUT /api/v1/exams/:id — Actualizar examen existente
+- Usuarios.
+- Pacientes.
+- Exámenes optométricos.
+- Productos.
+- Inventario.
 
-API de Catálogo e Inventario (Azure Cosmos DB - MongoDB API)
+Se eligió MongoDB por su estructura sencilla y facilidad de integración con Node.js.
 
-POST /api/v1/products — Crear nuevo producto
+### Autenticación
 
-GET /api/v1/products — Listar productos (soporta filtros: ?q=...&minStock=&maxStock=&page=&limit=)
+**JWT (JSON Web Token)**
 
-GET /api/v1/products/:id — Ver detalles de producto (HU-09)
+Se utilizará JWT para implementar un sistema básico de autenticación y permitir el acceso de usuarios registrados a la aplicación.
 
-PUT /api/v1/products/:id — Actualizar producto o inventario
+### Funcionalidades
 
-GET /api/v1/products/low-stock — Listar productos con stock < 10 (HU-10)
+Autenticación
+Inicio de sesión.
+Validación de usuario.
+Cierre de sesión.
 
-GET /api/v1/products/low-stock/csv — Exportar lista low-stock en CSV
+Pacientes
+Registrar pacientes.
+Consultar pacientes.
+Buscar pacientes.
+Editar pacientes.
+Eliminar pacientes.
 
-API de Roles y Permisos
+Historial optométrico
+Registrar exámenes.
+Consultar historial de un paciente.
+Editar exámenes.
+Eliminar exámenes.
 
-POST /api/v1/roles — Crear rol
+Productos e inventario
+Registrar productos.
+Consultar productos.
+Buscar productos.
+Editar productos.
+Eliminar productos.
+Actualizar stock.
+Consultar productos con bajo stock.
 
-GET /api/v1/roles — Listar roles
+### Herramientas adicionales
 
-PUT /api/v1/roles/:id — Actualizar rol
+- **Git / GitHub:** control de versiones.
+- **Postman:** pruebas de la API.
+- **Android Studio:** desarrollo y ejecución de la aplicación móvil.
+- **Visual Studio Code:** desarrollo del frontend y backend.
 
-POST /api/v1/roles/assign — Asignar rol a usuario
+---
 
-Instalación y ejecución local (Paso a paso)
+## Arquitectura general
 
-Ejemplo generalizado para cada API (patients-api, exams-api, products-api, roles-api)
+```text
+┌─────────────────────┐
+│    Aplicación       │
+│  Flutter + Dart     │
+└──────────┬──────────┘
+           │
+        HTTP / REST
+           │
+           ▼
+┌─────────────────────┐
+│      Backend        │
+│ Node.js + Express   │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│      MongoDB        │
+│     Base de datos   │
+└─────────────────────┘
+```
 
-Clona el repositorio:
-
-git clone <repo-url>
-cd repo
-
-Entra a la carpeta de la API que quieras levantar (ej. apis/products-api):
-
-cd apis/products-api
-
-Instala dependencias:
-
-npm install
-
-Crea el archivo .env y llena con variables (ver sección anterior).
-
-Levanta servicios auxiliares (opcional, local):
+El objetivo es mantener una arquitectura simple, funcional y adecuada, evitando tecnologías o servicios adicionales que no sean necesarios para el alcance inicial del proyecto.
